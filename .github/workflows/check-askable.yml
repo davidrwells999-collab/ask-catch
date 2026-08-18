@@ -1,0 +1,34 @@
+name: Check Askable Opportunities
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # every 5 minutes — GitHub may delay this under load
+  workflow_dispatch: {}     # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run check
+        env:
+          ASKABLE_TOKEN: ${{ secrets.ASKABLE_TOKEN }}
+          ASKABLE_USER_ID: ${{ secrets.ASKABLE_USER_ID }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: node check-askable.js
+
+      - name: Commit updated seen-list
+        run: |
+          git config user.name "askable-bot"
+          git config user.email "actions@github.com"
+          git add seen-opportunities.json
+          git diff --staged --quiet || git commit -m "update seen opportunities"
+          git push
