@@ -20,9 +20,11 @@ const QUERY = `query Opportunities($search: OpportunitySearchInput!) {
     type
     status
     approved_date
-    information {
-      short_description
-      brief_summary
+    config {
+      information {
+        short_description
+        brief_summary
+      }
     }
   }
 }`;
@@ -105,8 +107,9 @@ async function main() {
   } else {
     console.log(`${newOnes.length} new opportunit${newOnes.length === 1 ? "y" : "ies"} found`);
     for (const opp of newOnes) {
-      const title = opp.information?.short_description || opp.type || "New Askable opportunity";
-      const detail = opp.information?.brief_summary || opp.type || "";
+      const info = opp.config?.information;
+      const title = info?.short_description || opp.type || "New Askable opportunity";
+      const detail = info?.brief_summary || "";
       await notify(`New Askable opportunity`, `${title}${detail ? " — " + detail : ""}`);
     }
   }
