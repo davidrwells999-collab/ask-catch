@@ -24,12 +24,6 @@ const QUERY = `query Opportunities($search: OpportunitySearchInput!) {
       short_description
       brief_summary
     }
-    configBookingSession {
-      incentive {
-        value
-        currency_symbol
-      }
-    }
   }
 }`;
 
@@ -111,10 +105,9 @@ async function main() {
   } else {
     console.log(`${newOnes.length} new opportunit${newOnes.length === 1 ? "y" : "ies"} found`);
     for (const opp of newOnes) {
-      const incentive = opp.configBookingSession?.incentive;
-      const reward = incentive ? `${incentive.currency_symbol}${incentive.value}` : "reward unknown";
       const title = opp.information?.short_description || opp.type || "New Askable opportunity";
-      await notify(`New Askable opportunity — ${reward}`, title);
+      const detail = opp.information?.brief_summary || opp.type || "";
+      await notify(`New Askable opportunity`, `${title}${detail ? " — " + detail : ""}`);
     }
   }
 
